@@ -1,9 +1,17 @@
 package kr.soen.damagochi;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -13,16 +21,38 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class MainActivity extends AppCompatActivity  {
+    private static final String TAG = "LogTest";
     WebView mWeb;
     final static int ACT_EDIT = 0;
+    int deviceWidth;
+    int deviceHeight;
+
+
+    
 
 
     @Override //액티비티가 처음 만들어졌을 때 호출
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        //setContentView(R.layout.activity_main);
+        LinearLayout linear = (LinearLayout) View.inflate(this, R.layout.activity_main, null);
+        MyView vw = new MyView(this);
+        linear.addView(vw);
+        setContentView(linear);
 
+        //get Device_Size
+        DisplayMetrics disp = getApplicationContext().getResources().getDisplayMetrics();
+        deviceWidth = disp.widthPixels;
+        deviceHeight = disp.heightPixels;
+        Log.i(TAG, "deviceWidth = " + deviceWidth + ", deviceHeight = " + deviceHeight);
+
+
+        //connect click_event with button
         findViewById(R.id.rice).setOnClickListener(btnClickListener);
         findViewById(R.id.play).setOnClickListener(btnClickListener);
         findViewById(R.id.stroll).setOnClickListener(btnClickListener);
@@ -37,14 +67,14 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "hello", Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.play: // play with pet inside
-                    LinearLayout linear_rice = (LinearLayout)View.inflate(MainActivity.this,R.layout.riceview,null);
+                    LinearLayout linear_rice = (LinearLayout) View.inflate(MainActivity.this, R.layout.riceview, null);
                     Toast t1 = new Toast(MainActivity.this);
                     t1.setView(linear_rice);
                     t1.show();
                     break;
-                case  R.id.stroll: // play with pet outside    임시로 다른 액티비티 넘어가는 것
-                    Intent intent = new Intent(MainActivity.this,SubActivity.class);
-                    startActivityForResult(intent,ACT_EDIT);
+                case R.id.stroll: // play with pet outside    임시로 다른 액티비티 넘어가는 것
+                    Intent intent = new Intent(MainActivity.this, SubActivity.class);
+                    startActivityForResult(intent, ACT_EDIT);
                     break;
 
                 case R.id.gift: //connect CrowdFunding Site
@@ -52,11 +82,11 @@ public class MainActivity extends AppCompatActivity {
                     new android.app.AlertDialog.Builder(MainActivity.this)
                             .setTitle("선물하기")
                             .setMessage("크라우드 펀딩 사이트로 연결하시겠습니까?")
-                            .setPositiveButton("확인",new DialogInterface.OnClickListener() {
+                            .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                     setContentView(R.layout.funding_site);
 
-                                    mWeb = (WebView)findViewById(R.id.web);
+                                    mWeb = (WebView) findViewById(R.id.web);
                                     mWeb.setWebViewClient(new MyWebClient());
                                     WebSettings set = mWeb.getSettings();
                                     set.setJavaScriptEnabled(true);
@@ -72,6 +102,24 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    //특정 작업을 주기적으로 실행하는 클래스
+
+        final Timer timer;
+        TimerTask timerTask;
+
+        timerTask = new TimerTask() {
+
+        @Override
+        public void run () {
+            Log.i(TAG, "타이머 작동중");
+        }
+
+    };
+
+    }
+
+
+
     class MyWebClient extends WebViewClient {
         /*
 	 * 웹뷰 내 링크 터치 시 새로운 창이 뜨지 않고
@@ -79,20 +127,19 @@ public class MainActivity extends AppCompatActivity {
 	 */
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             view.loadUrl(url);
-           //mWebsetDefaultZoom(WebSettings.ZoomDensity.FAR);
+            //mWebsetDefaultZoom(WebSettings.ZoomDensity.FAR);
             return true;
         }
     }
 
 
-//if 'goBack' in webview, don't finish and goBack.
+    //if 'goBack' in webview, don't finish and goBack.
     @Override
 
     public void onBackPressed() {
         if (mWeb.canGoBack()) {
             mWeb.goBack();
-         }
-        else {
+        } else {
             //System.exit(0);
 
         }
@@ -109,9 +156,23 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }*/
 
+    class MyView extends View {
+        public MyView(Context context) {
+            super(context);
+        }
 
 
+        public void onDraw(Canvas canvas) {
+            android.content.res.Resources res = getResources();
+            BitmapDrawable bd = (BitmapDrawable) res.getDrawable(R.drawable.chicken);
+            Bitmap bit = bd.getBitmap();
+
+            canvas.drawBitmap(bit, null, new Rect(deviceWidth/2-deviceWidth/8,deviceHeight/2-deviceHeight/8,deviceWidth/2+deviceWidth/8,deviceHeight/2+deviceHeight/8), null);
+        }
+    }
 }
+
+
 
 
 
