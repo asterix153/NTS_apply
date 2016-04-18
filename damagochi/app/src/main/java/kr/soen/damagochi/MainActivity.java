@@ -3,6 +3,7 @@ package kr.soen.damagochi;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.*;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -13,10 +14,12 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.*;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,13 +34,26 @@ public class MainActivity extends AppCompatActivity  {
     final static int ACT_EDIT = 0;
     int deviceWidth;
     int deviceHeight;
+    ImageView mAnimTarget;
+
+    int moveDistance=0;
+    int petLeftX=0;
+    int petRightX=0;
+    int petTopY=0;
+    int petBottomY=0;
+
+    int sign= +1;
+
+
+
+    MyView vw;
 
     @Override //액티비티가 처음 만들어졌을 때 호출
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
         LinearLayout linear = (LinearLayout) View.inflate(this, R.layout.activity_main, null);
-        MyView vw = new MyView(this);
+        vw = new MyView(this);
         linear.addView(vw);
         setContentView(linear);
 
@@ -53,14 +69,26 @@ public class MainActivity extends AppCompatActivity  {
         findViewById(R.id.play).setOnClickListener(btnClickListener);
         findViewById(R.id.stroll).setOnClickListener(btnClickListener);
         findViewById(R.id.gift).setOnClickListener(btnClickListener);
+
+
+       // mAnimTarget = (ImageView)findViewById(R.id.chicken);
     }
 
     Button.OnClickListener btnClickListener = new View.OnClickListener() {
         public void onClick(View v) {
+            Animation anim = null;
+
 
             switch (v.getId()) {
                 case R.id.rice: // feed pet
-                    Toast.makeText(MainActivity.this, "hello", Toast.LENGTH_SHORT).show();
+                   /* anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF,0,Animation.RELATIVE_TO_SELF,0.8f,
+                            Animation.RELATIVE_TO_PARENT,0,Animation.RELATIVE_TO_PARENT,0);
+                    anim.setDuration(10000);
+                    anim.setRepeatCount(-1);
+                    anim.setRepeatMode(Animation.REVERSE);
+                    mAnimTarget.startAnimation(anim);
+                    break;*/
+                    vw.petMove();
                     break;
                 case R.id.play: // play with pet inside
                     LinearLayout linear_rice = (LinearLayout) View.inflate(MainActivity.this, R.layout.riceview, null);
@@ -92,6 +120,8 @@ public class MainActivity extends AppCompatActivity  {
                             })
                             .setNegativeButton("취소", null)
                             .show();
+
+                    break;
 
             }
 
@@ -128,10 +158,8 @@ public class MainActivity extends AppCompatActivity  {
         }
     }
 
-
-    //if 'goBack' in webview, don't finish and goBack.
+    //웹뷰에서 뒤로가기를 했을 때, 앱이 종료되지 않고 기존 액티비티로 이동하는 구문
     @Override
-
     public void onBackPressed() {
         if (mWeb.canGoBack()) {
             mWeb.goBack();
@@ -153,7 +181,9 @@ public class MainActivity extends AppCompatActivity  {
         return false;
     }*/
 
-    class MyView extends View {
+
+    // 캐릭터 이미지
+   class MyView extends View {
         public MyView(Context context) {
             super(context);
         }
@@ -164,10 +194,33 @@ public class MainActivity extends AppCompatActivity  {
             BitmapDrawable bd = (BitmapDrawable) res.getDrawable(R.drawable.chicken);
             Bitmap bit = bd.getBitmap();
 
-            canvas.drawBitmap(bit, null, new Rect(deviceWidth/2-deviceWidth/8,deviceHeight/2-deviceHeight/8,deviceWidth/2+deviceWidth/8,deviceHeight/2+deviceHeight/8), null);
+            //캐릭터 왼쪽 x좌표
+            petLeftX = deviceWidth / 2 - deviceWidth / 8 + moveDistance;
+            //캐릭터 오른쪽 x좌표
+            petRightX = deviceWidth / 2 + deviceWidth / 8 + moveDistance;
+            //캐릭터 위쪽 y좌표
+            petTopY = deviceHeight / 2 - deviceHeight / 10;
+            //캐릭터 아래쪽 y좌표
+            petBottomY = deviceHeight / 2 + deviceHeight / 10;
+
+            canvas.drawBitmap(bit, null, new Rect(petLeftX, petTopY, petRightX, petBottomY), null);
+            invalidate();
+
+        }
+
+        public void petMove() {
+            if(petRightX > deviceWidth){
+                sign= -1;
+            }
+            else if(petLeftX < 0) {
+                sign=+1;
+            }
+            moveDistance = moveDistance + sign*50;
+            Log.i(TAG,"x좌표"+petRightX);
         }
     }
 }
+
 
 
 
