@@ -1,14 +1,17 @@
 package kr.soen.damagochi;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.*;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -25,10 +28,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends AppCompatActivity  {
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = "LogTest";
     WebView mWeb;
     final static int ACT_EDIT = 0;
@@ -36,17 +43,21 @@ public class MainActivity extends AppCompatActivity  {
     int deviceHeight;
     ImageView mAnimTarget;
 
-    int moveDistance=0;
-    int petLeftX=0;
-    int petRightX=0;
-    int petTopY=0;
-    int petBottomY=0;
+    int moveDistance = 0;
+    int petLeftX = 0;
+    int petRightX = 0;
+    int petTopY = 0;
+    int petBottomY = 0;
 
-    int sign= +1;
-
+    int sign = +1;
 
 
     MyView vw;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     @Override //액티비티가 처음 만들어졌을 때 호출
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +82,10 @@ public class MainActivity extends AppCompatActivity  {
         findViewById(R.id.gift).setOnClickListener(btnClickListener);
 
 
-       // mAnimTarget = (ImageView)findViewById(R.id.chicken);
+        // mAnimTarget = (ImageView)findViewById(R.id.chicken);
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     Button.OnClickListener btnClickListener = new View.OnClickListener() {
@@ -88,7 +102,7 @@ public class MainActivity extends AppCompatActivity  {
                     anim.setRepeatMode(Animation.REVERSE);
                     mAnimTarget.startAnimation(anim);
                     break;*/
-                    vw.petMove();
+                    //vw.petMove();
                     break;
                 case R.id.play: // play with pet inside
                     LinearLayout linear_rice = (LinearLayout) View.inflate(MainActivity.this, R.layout.riceview, null);
@@ -103,7 +117,7 @@ public class MainActivity extends AppCompatActivity  {
 
                 case R.id.gift: //connect CrowdFunding Site
 
-                    new android.app.AlertDialog.Builder(MainActivity.this)
+                    new AlertDialog.Builder(MainActivity.this)
                             .setTitle("선물하기")
                             .setMessage("크라우드 펀딩 사이트로 연결하시겠습니까?")
                             .setPositiveButton("확인", new DialogInterface.OnClickListener() {
@@ -128,6 +142,46 @@ public class MainActivity extends AppCompatActivity  {
         }
     };
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://kr.soen.damagochi/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client, viewAction);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://kr.soen.damagochi/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client, viewAction);
+        client.disconnect();
+    }
+
     //특정 작업을 주기적으로 실행하는 클래스
 
 /*        final Timer timer;
@@ -148,7 +202,7 @@ public class MainActivity extends AppCompatActivity  {
 
     class MyWebClient extends WebViewClient {
         /*
-	 * 웹뷰 내 링크 터치 시 새로운 창이 뜨지 않고
+     * 웹뷰 내 링크 터치 시 새로운 창이 뜨지 않고
 	 * 해당 웹뷰 안에서 새로운 페이지가 로딩되도록 함
 	 */
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -183,16 +237,17 @@ public class MainActivity extends AppCompatActivity  {
 
 
     // 캐릭터 이미지
-   class MyView extends View {
+    class MyView extends View {
         public MyView(Context context) {
             super(context);
         }
 
 
         public void onDraw(Canvas canvas) {
-            android.content.res.Resources res = getResources();
+            Resources res = getResources();
             BitmapDrawable bd = (BitmapDrawable) res.getDrawable(R.drawable.chicken);
             Bitmap bit = bd.getBitmap();
+
 
             //캐릭터 왼쪽 x좌표
             petLeftX = deviceWidth / 2 - deviceWidth / 8 + moveDistance;
@@ -203,12 +258,24 @@ public class MainActivity extends AppCompatActivity  {
             //캐릭터 아래쪽 y좌표
             petBottomY = deviceHeight / 2 + deviceHeight / 10;
 
+
+            if (petRightX > deviceWidth) {
+                sign = -1;
+            } else if (petLeftX < 0) {
+                sign = +1;
+            }
+            moveDistance = moveDistance + sign * 50;
+            Log.i(TAG, "x좌표" + petRightX);
+            Log.i(TAG, "repaint!");
+
+            android.os.SystemClock.sleep(600);
+
             canvas.drawBitmap(bit, null, new Rect(petLeftX, petTopY, petRightX, petBottomY), null);
-            invalidate();
+            invalidate();//onDraw 재호출
 
         }
 
-        public void petMove() {
+       /* public void petMove() {
             if(petRightX > deviceWidth){
                 sign= -1;
             }
@@ -217,7 +284,9 @@ public class MainActivity extends AppCompatActivity  {
             }
             moveDistance = moveDistance + sign*50;
             Log.i(TAG,"x좌표"+petRightX);
-        }
+            invalidate();
+            Log.i(TAG,"repain!");
+        }*/
     }
 }
 
