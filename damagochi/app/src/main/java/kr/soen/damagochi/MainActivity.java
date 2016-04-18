@@ -32,10 +32,6 @@ public class MainActivity extends AppCompatActivity  {
     int deviceWidth;
     int deviceHeight;
 
-
-    
-
-
     @Override //액티비티가 처음 만들어졌을 때 호출
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,7 +100,7 @@ public class MainActivity extends AppCompatActivity  {
 
     //특정 작업을 주기적으로 실행하는 클래스
 
-        final Timer timer;
+/*        final Timer timer;
         TimerTask timerTask;
 
         timerTask = new TimerTask() {
@@ -117,7 +113,7 @@ public class MainActivity extends AppCompatActivity  {
     };
 
     }
-
+*/
 
 
     class MyWebClient extends WebViewClient {
@@ -140,8 +136,9 @@ public class MainActivity extends AppCompatActivity  {
         if (mWeb.canGoBack()) {
             mWeb.goBack();
         } else {
+            recreate();
+            //setContentView(R.layout.activity_main);
             //System.exit(0);
-
         }
         //super.onBackPressed(); // 원래 뒤로가기 기능을 실행, 즉 종료
     }
