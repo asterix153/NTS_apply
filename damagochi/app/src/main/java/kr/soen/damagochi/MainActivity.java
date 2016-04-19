@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     int petBottomY = 0;
 
     int sign = +1;
+    int legOrder = 0;
 
 
     MyView vw;
@@ -246,8 +247,14 @@ public class MainActivity extends AppCompatActivity {
         public void onDraw(Canvas canvas) {
             Resources res = getResources();
             BitmapDrawable bd = (BitmapDrawable) res.getDrawable(R.drawable.chicken);
-            Bitmap bit = bd.getBitmap();
+            BitmapDrawable bd2 = (BitmapDrawable) res.getDrawable(R.drawable.chicken2);
+            BitmapDrawable bd3 = (BitmapDrawable) res.getDrawable(R.drawable.chicken_reverse);
+            BitmapDrawable bd4 = (BitmapDrawable) res.getDrawable(R.drawable.chicken_reverse2);
 
+            Bitmap bit = bd.getBitmap();
+            Bitmap bit2 = bd2.getBitmap();
+            Bitmap bit3 = bd3.getBitmap();
+            Bitmap bit4 = bd4.getBitmap();
 
             //캐릭터 왼쪽 x좌표
             petLeftX = deviceWidth / 2 - deviceWidth / 8 + moveDistance;
@@ -262,18 +269,37 @@ public class MainActivity extends AppCompatActivity {
             if (petRightX > deviceWidth) {
                 sign = -1;
             } else if (petLeftX < 0) {
-                sign = +1;
+                sign = 1;
             }
             moveDistance = moveDistance + sign * 50;
             Log.i(TAG, "x좌표" + petRightX);
             Log.i(TAG, "repaint!");
 
-            android.os.SystemClock.sleep(600);
+            //android.os.SystemClock.sleep(600);
+            try{ Thread.sleep(600);}catch(Exception e){}
 
-            canvas.drawBitmap(bit, null, new Rect(petLeftX, petTopY, petRightX, petBottomY), null);
+
+
+            if(sign== 1 && legOrder==0) {
+                canvas.drawBitmap(bit, null, new Rect(petLeftX, petTopY, petRightX, petBottomY), null);
+                legOrder += 1;
+            }
+            else if(sign==1 && legOrder==1){
+                canvas.drawBitmap(bit2, null, new Rect(petLeftX, petTopY, petRightX, petBottomY), null);
+                legOrder -= 1;
+            }
+            else if(sign==-1 && legOrder==0) {
+                canvas.drawBitmap(bit3, null, new Rect(petLeftX,petTopY,petRightX,petBottomY), null);
+                legOrder += 1;
+            }else if(sign==-1 && legOrder==1) {
+                canvas.drawBitmap(bit4, null, new Rect(petLeftX, petTopY, petRightX, petBottomY), null);
+                legOrder -= 1;
+            }
             invalidate();//onDraw 재호출
-
         }
+
+
+    }
 
        /* public void petMove() {
             if(petRightX > deviceWidth){
@@ -287,8 +313,8 @@ public class MainActivity extends AppCompatActivity {
             invalidate();
             Log.i(TAG,"repain!");
         }*/
-    }
 }
+
 
 
 
