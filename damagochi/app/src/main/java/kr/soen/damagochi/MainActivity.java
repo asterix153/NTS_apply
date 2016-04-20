@@ -26,7 +26,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import android.os.Handler;//java.util.logging.Handler is the wrong class to import
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -34,30 +34,32 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.LogRecord;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "LogTest";
-    WebView mWeb;
+    private static final String TAG = "LogTest"; //로그 사용을 위해서 정의해둔 값
+    WebView mWeb;// 웹페이지 객체
     final static int ACT_EDIT = 0;
-    int deviceWidth;
-    int deviceHeight;
-    ImageView mAnimTarget;
+    int deviceWidth; //기기 가로길이
+    int deviceHeight; //기기 세로길이
 
-    int moveDistance = 0;
+    int moveDistance = 0; //기본 위치 기준, 좌우로 이동한 값
+
+    //캐릭터가 위치한 xy좌표
     int petLeftX = 0;
     int petRightX = 0;
     int petTopY = 0;
     int petBottomY = 0;
 
-    int sign = +1;
-    int legOrder = 0;
+    int sign = +1; // 캐릭터 방향(양/음)
+    int legOrder = 0; // 캐릭터의 움직임 효과, 보폭 표현
 
 
-    MyView vw;
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
+    MyView vw; //캐릭터가 들어있는 뷰
+
+
+    Handler mHandler;
+
     private GoogleApiClient client;
 
     @Override //액티비티가 처음 만들어졌을 때 호출
@@ -69,47 +71,44 @@ public class MainActivity extends AppCompatActivity {
         linear.addView(vw);
         setContentView(linear);
 
-        //get Device_Size
+        //디바이스 가로,세로 길이 구하기
         DisplayMetrics disp = getApplicationContext().getResources().getDisplayMetrics();
         deviceWidth = disp.widthPixels;
         deviceHeight = disp.heightPixels;
         Log.i(TAG, "deviceWidth = " + deviceWidth + ", deviceHeight = " + deviceHeight);
 
 
-        //connect click_event with button
+        //각 버튼에 리스너 등록
         findViewById(R.id.rice).setOnClickListener(btnClickListener);
         findViewById(R.id.play).setOnClickListener(btnClickListener);
         findViewById(R.id.stroll).setOnClickListener(btnClickListener);
         findViewById(R.id.gift).setOnClickListener(btnClickListener);
 
+        mHandler = new android.os.Handler() {;
+            public void handleMessage(android.os.Message msg){
+                mHandler.sendEmptyMessageDelayed(0,600);
+                vw.invalidate();
+            }
+        };
+        mHandler.sendEmptyMessage(0);
 
-        // mAnimTarget = (ImageView)findViewById(R.id.chicken);
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+        //client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     Button.OnClickListener btnClickListener = new View.OnClickListener() {
         public void onClick(View v) {
-            Animation anim = null;
-
 
             switch (v.getId()) {
                 case R.id.rice: // feed pet
-                   /* anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF,0,Animation.RELATIVE_TO_SELF,0.8f,
-                            Animation.RELATIVE_TO_PARENT,0,Animation.RELATIVE_TO_PARENT,0);
-                    anim.setDuration(10000);
-                    anim.setRepeatCount(-1);
-                    anim.setRepeatMode(Animation.REVERSE);
-                    mAnimTarget.startAnimation(anim);
-                    break;*/
-                    //vw.petMove();
-                    break;
-                case R.id.play: // play with pet inside
                     LinearLayout linear_rice = (LinearLayout) View.inflate(MainActivity.this, R.layout.riceview, null);
                     Toast t1 = new Toast(MainActivity.this);
                     t1.setView(linear_rice);
                     t1.show();
+
+                    break;
+                case R.id.play: // play with pet inside 임시로 예금기능 구현
+
+
                     break;
                 case R.id.stroll: // play with pet outside    임시로 다른 액티비티 넘어가는 것
                     Intent intent = new Intent(MainActivity.this, SubActivity.class);
@@ -143,64 +142,6 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
-                Uri.parse("android-app://kr.soen.damagochi/http/host/path")
-        );
-        AppIndex.AppIndexApi.start(client, viewAction);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
-                Uri.parse("android-app://kr.soen.damagochi/http/host/path")
-        );
-        AppIndex.AppIndexApi.end(client, viewAction);
-        client.disconnect();
-    }
-
-    //특정 작업을 주기적으로 실행하는 클래스
-
-/*        final Timer timer;
-        TimerTask timerTask;
-
-        timerTask = new TimerTask() {
-
-        @Override
-        public void run () {
-            Log.i(TAG, "타이머 작동중");
-        }
-
-    };
-
-    }
-*/
-
-
     class MyWebClient extends WebViewClient {
         /*
      * 웹뷰 내 링크 터치 시 새로운 창이 뜨지 않고
@@ -219,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
         if (mWeb.canGoBack()) {
             mWeb.goBack();
         } else {
-            recreate();
+            recreate(); //본 액티비티 재실행
             //setContentView(R.layout.activity_main);
             //System.exit(0);
         }
@@ -237,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
     }*/
 
 
-    // 캐릭터 이미지
+    // 캐릭터 이미지 출력
     class MyView extends View {
         public MyView(Context context) {
             super(context);
@@ -276,43 +217,64 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG, "repaint!");
 
             //android.os.SystemClock.sleep(600);
-            try{ Thread.sleep(600);}catch(Exception e){}
 
 
-
-            if(sign== 1 && legOrder==0) {
+            if (sign == 1 && legOrder == 0) {
                 canvas.drawBitmap(bit, null, new Rect(petLeftX, petTopY, petRightX, petBottomY), null);
                 legOrder += 1;
-            }
-            else if(sign==1 && legOrder==1){
+            } else if (sign == 1 && legOrder == 1) {
                 canvas.drawBitmap(bit2, null, new Rect(petLeftX, petTopY, petRightX, petBottomY), null);
                 legOrder -= 1;
-            }
-            else if(sign==-1 && legOrder==0) {
-                canvas.drawBitmap(bit3, null, new Rect(petLeftX,petTopY,petRightX,petBottomY), null);
+            } else if (sign == -1 && legOrder == 0) {
+                canvas.drawBitmap(bit3, null, new Rect(petLeftX, petTopY, petRightX, petBottomY), null);
                 legOrder += 1;
-            }else if(sign==-1 && legOrder==1) {
+            } else if (sign == -1 && legOrder == 1) {
                 canvas.drawBitmap(bit4, null, new Rect(petLeftX, petTopY, petRightX, petBottomY), null);
                 legOrder -= 1;
             }
-            invalidate();//onDraw 재호출
+
+            //invalidate();//onDraw 재호출
         }
 
 
     }
 
-       /* public void petMove() {
-            if(petRightX > deviceWidth){
-                sign= -1;
+    /*class BackThread extends Thread {
+        public void run() {
+
+            try {
+                Thread.sleep(600);
+                petHandler.sendMessage(msg);
+            } catch (InterruptedException e) {
+                ;
             }
-            else if(petLeftX < 0) {
-                sign=+1;
+
+        }
+    }
+
+    Handler petHandler = new Handler() {
+        @Override
+        public void close() {
+
+        }
+
+        @Override
+        public void flush() {
+
+        }
+
+        @Override
+        public void publish(LogRecord record) {
+
+        }
+
+        public void handleMessage(android.os.Message msg) {
+            if (msg.what == 0) {
+                vw.invalidate();
             }
-            moveDistance = moveDistance + sign*50;
-            Log.i(TAG,"x좌표"+petRightX);
-            invalidate();
-            Log.i(TAG,"repain!");
-        }*/
+        }
+    };*/
+
 }
 
 
