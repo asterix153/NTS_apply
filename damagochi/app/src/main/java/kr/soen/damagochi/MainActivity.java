@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -53,10 +54,11 @@ public class MainActivity extends AppCompatActivity {
 
     int sign = +1; // 캐릭터 방향(양/음)
     int legOrder = 0; // 캐릭터의 움직임 효과, 보폭 표현
+    int riceOrder = 0;
 
-
+    LinearLayout linear;
     MyView vw; //캐릭터가 들어있는 뷰
-
+    MyView2 vw2;
 
     Handler mHandler;
 
@@ -66,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
-        LinearLayout linear = (LinearLayout) View.inflate(this, R.layout.activity_main, null);
+        linear = (LinearLayout) View.inflate(this, R.layout.activity_main, null);
         vw = new MyView(this);
         linear.addView(vw);
         setContentView(linear);
@@ -100,10 +102,32 @@ public class MainActivity extends AppCompatActivity {
 
             switch (v.getId()) {
                 case R.id.rice: // feed pet
+                    /* 토스트를 이용한 방법(레이아웃을 토스트로 띄우기)
                     LinearLayout linear_rice = (LinearLayout) View.inflate(MainActivity.this, R.layout.riceview, null);
                     Toast t1 = new Toast(MainActivity.this);
                     t1.setView(linear_rice);
-                    t1.show();
+                    t1.show();*/
+
+                    LinearLayout linear2 = (LinearLayout) View.inflate(MainActivity.this, R.layout.activity_main, null);
+                    vw2 = new MyView2(MainActivity.this);
+                    linear2.addView(vw2);
+                    setContentView(linear2);
+
+                    new CountDownTimer(5*1000,1000) {//1초간격으로 총 5초 진행
+                        @Override
+                        public void onTick(long millisUntilFinished) {
+                            vw2.invalidate();
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            recreate();
+                            /*이렇게 하면 에러
+                            linear.addView(vw);
+                            setContentView(linear);
+                            */
+                        }
+                    }.start();
 
                     break;
                 case R.id.play: // play with pet inside 임시로 예금기능 구현
@@ -239,42 +263,44 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    /*class BackThread extends Thread {
-        public void run() {
+    class MyView2 extends View {
+        public MyView2(Context context) {
+            super(context);
+        }
 
-            try {
-                Thread.sleep(600);
-                petHandler.sendMessage(msg);
-            } catch (InterruptedException e) {
-                ;
+
+        public void onDraw(Canvas canvas) {
+            Resources res = getResources();
+            BitmapDrawable bd5 = (BitmapDrawable) res.getDrawable(R.drawable.rice_empty);
+            BitmapDrawable bd6 = (BitmapDrawable) res.getDrawable(R.drawable.rice_full);
+
+
+
+            Bitmap bit5 = bd5.getBitmap();
+            Bitmap bit6 = bd6.getBitmap();
+
+
+            //캐릭터 왼쪽 x좌표
+            petLeftX = deviceWidth / 2 - deviceWidth / 8;
+            //캐릭터 오른쪽 x좌표
+            petRightX = deviceWidth / 2 + deviceWidth / 8;
+            //캐릭터 위쪽 y좌표
+            petTopY = deviceHeight / 2 - deviceHeight / 10;
+            //캐릭터 아래쪽 y좌표
+            petBottomY = deviceHeight / 2 + deviceHeight / 10;
+
+
+            if(riceOrder==0) {
+                canvas.drawBitmap(bit5, null, new Rect(petLeftX, petTopY, petRightX, petBottomY), null);
+                riceOrder++;
+            }else if(riceOrder==1) {
+                canvas.drawBitmap(bit6, null, new Rect(petLeftX, petTopY, petRightX, petBottomY), null);
+                riceOrder--;
+
             }
 
         }
     }
-
-    Handler petHandler = new Handler() {
-        @Override
-        public void close() {
-
-        }
-
-        @Override
-        public void flush() {
-
-        }
-
-        @Override
-        public void publish(LogRecord record) {
-
-        }
-
-        public void handleMessage(android.os.Message msg) {
-            if (msg.what == 0) {
-                vw.invalidate();
-            }
-        }
-    };*/
-
 }
 
 
