@@ -3,32 +3,52 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     >
-    <TextView
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="아이디"
-        />
-    <EditText
-        android:id="@+id/stredit"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        />
-    <TextView
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="비밀번호"
-        />
-    <EditText
-        android:id="@+id/stredit2"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        />
-    <Button
-        android:id="@+id/close"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:onClick="mOnClick"
-        android:text="close"
-       />
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Enter your name" />
 
-    </LinearLayout>
+<EditText
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/editTextName" />
+
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Choose your username" />
+
+<EditText
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/editTextUserName" />
+
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Choose your password" />
+
+<EditText
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:inputType="textPassword"
+    android:id="@+id/editTextPassword" />
+
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Enter your email" />
+
+<EditText
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:inputType="textEmailAddress"
+    android:id="@+id/editTextEmail" />
+
+<Button
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:text="Register"
+    android:id="@+id/buttonRegister" />
+
+</LinearLayout>
