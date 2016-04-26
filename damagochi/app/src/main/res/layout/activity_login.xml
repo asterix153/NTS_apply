@@ -42,4 +42,4 @@
         android:text="register"
         android:onClick="btn_register"
         />
-    </LinearLayout>
+</LinearLayout>
