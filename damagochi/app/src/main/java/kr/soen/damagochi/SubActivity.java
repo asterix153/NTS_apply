@@ -77,7 +77,7 @@ public class SubActivity extends AppCompatActivity implements View.OnClickListen
 
     private Button buttonRegister;
 
-    private static final String REGISTER_URL = "http://danaeri.dothome.co.kr/mainPHP.php";
+    private static final String REGISTER_URL = "http://danaeri.dothome.co.kr/android_register.php";
 
 
     @Override

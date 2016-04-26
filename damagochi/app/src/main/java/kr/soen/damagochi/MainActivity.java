@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
 
                     break;
                 case R.id.stroll: // play with pet outside    임시로 다른 액티비티 넘어가는 것
-                    Intent intent = new Intent(MainActivity.this, SubActivity.class);
+                    Intent intent = new Intent(MainActivity.this, login_Activity.class);
                     startActivityForResult(intent, ACT_EDIT);
                     break;
 

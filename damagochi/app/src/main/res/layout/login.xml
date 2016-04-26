@@ -51,4 +51,5 @@
     android:text="Register"
     android:id="@+id/buttonRegister" />
 
+
 </LinearLayout>
