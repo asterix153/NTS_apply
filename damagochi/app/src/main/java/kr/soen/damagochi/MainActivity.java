@@ -35,6 +35,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.LogRecord;
 
 public class MainActivity extends AppCompatActivity {
@@ -86,6 +87,31 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.stroll).setOnClickListener(btnClickListener);
         findViewById(R.id.gift).setOnClickListener(btnClickListener);
 
+////////////db에 있는 사용자 정보 가져오기
+        String username = "r";
+        String password = "r";
+        String type = "State";
+        StateConfirm stateConfirm = new StateConfirm(this);
+
+
+        String choice = null;
+        try {
+            choice = stateConfirm.execute(type, username, password).get();
+            Log.i(TAG,"지금 OK?"+choice);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        if(choice.equals("hello")) { //그냥 ==로 하면 오류나네
+            Log.i(TAG,"myThread confirm");
+        }
+        //////////사용자 레벨에 따라 그림 바꾸기
+        ImageView iv= (ImageView)findViewById(R.id.level);
+        iv.setImageResource(R.drawable.lv2);
+
+
         mHandler = new android.os.Handler() {;
             public void handleMessage(android.os.Message msg){
                 mHandler.sendEmptyMessageDelayed(0,600);
@@ -108,10 +134,11 @@ public class MainActivity extends AppCompatActivity {
                     t1.setView(linear_rice);
                     t1.show();*/
 
-                    LinearLayout linear2 = (LinearLayout) View.inflate(MainActivity.this, R.layout.activity_main, null);
+                    //LinearLayout linear2 = (LinearLayout) View.inflate(MainActivity.this, R.layout.activity_main, null);
+                    linear.removeView(vw);
                     vw2 = new MyView2(MainActivity.this);
-                    linear2.addView(vw2);
-                    setContentView(linear2);
+                    linear.addView(vw2);
+                    setContentView(linear);
 
                     new CountDownTimer(5*1000,1000) {//1초간격으로 총 5초 진행
                         @Override
@@ -263,6 +290,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //밥 먹는 이미지 출력
     class MyView2 extends View {
         public MyView2(Context context) {
             super(context);
