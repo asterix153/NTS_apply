@@ -58,7 +58,7 @@ public class LoginActivity extends  AppCompatActivity{
         if(choice.equals("login success")){ //그냥 ==로 하면 오류나네
             Log.i(TAG,"here!");
 
-
+/*
             //////////////////////////////////////////////////////////////////
             SharedPreferences prefs = getSharedPreferences("PrefName", MODE_PRIVATE);
             //preference이름을 PrefName으로
@@ -67,13 +67,16 @@ public class LoginActivity extends  AppCompatActivity{
             editor.putString("id", username);			//사용자에게 입력받은 strid를 저장
             editor.putString("pw", password);		//사용자에게 입력받은 strpw를 저장
             editor.commit();							//commit
-
+*/
 /////////////////////////////////////////////////////////////////////////////////
-            Intent intent = new Intent();
+            /*Intent intent = new Intent();
             intent.putExtra("TextOut", username);
             intent.putExtra("TextOut2", password);
             setResult(RESULT_OK, intent);
-            finish();
+            finish();*/
+
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivityForResult(intent, ACT_EDIT);
         }
         else {
             Log.i(TAG,"here2!");

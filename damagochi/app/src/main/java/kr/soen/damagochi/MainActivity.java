@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.*;
 import android.graphics.Bitmap;
@@ -23,11 +24,14 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.os.Handler;//java.util.logging.Handler is the wrong class to import
+import java.lang.String;
+import android.view.View.OnClickListener;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -37,6 +41,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.LogRecord;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "LogTest"; //로그 사용을 위해서 정의해둔 값
@@ -58,8 +63,11 @@ public class MainActivity extends AppCompatActivity {
     int riceOrder = 0;
 
     LinearLayout linear;
+    FrameLayout frameLayout;
+
     MyView vw; //캐릭터가 들어있는 뷰
     MyView2 vw2;
+
 
     Handler mHandler;
 
@@ -70,8 +78,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
         linear = (LinearLayout) View.inflate(this, R.layout.activity_main, null);
-        vw = new MyView(this);
-        linear.addView(vw);
         setContentView(linear);
 
         //디바이스 가로,세로 길이 구하기
@@ -86,8 +92,18 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.play).setOnClickListener(btnClickListener);
         findViewById(R.id.stroll).setOnClickListener(btnClickListener);
         findViewById(R.id.gift).setOnClickListener(btnClickListener);
+////////////랜덤으로 똥 생성해서 db에 투척
+/*
+        Random random= new Random();
+        int randValue = random.nextInt(30) + 1;//1부터 30까지의 경우의 수 중 선택
+        if(randValue)
+*/
 
 ////////////db에 있는 사용자 정보 가져오기
+
+        SharedPreferences prefs = getSharedPreferences("PrefName", MODE_PRIVATE);
+        /*String username = prefs.getString("id", "");
+        String password = prefs.getString("pw", "");*/
         String username = "r";
         String password = "r";
         String type = "State";
@@ -107,7 +123,71 @@ public class MainActivity extends AppCompatActivity {
         if(choice.equals("hello")) { //그냥 ==로 하면 오류나네
             Log.i(TAG,"myThread confirm");
         }
-        //////////사용자 레벨에 따라 그림 바꾸기
+
+        //////똥 갯수에 맞게 랜덤으로 투척////////////
+        String dungTmp = choice.split("/")[2];
+        int numOfDung = Integer.valueOf(dungTmp);
+
+        frameLayout = (FrameLayout)findViewById(R.id.dynamic_layout);
+        vw = new MyView(this);
+        frameLayout.addView(vw);
+        //setContentView(linear);
+
+        for(int i=0 ; i< numOfDung; i++) {
+
+
+            View vw3 = new View(this) {
+                Random random = new Random();
+
+                /*public MyView3(Context context2) {
+                    super(context2);
+                }*/
+
+                public void onDraw(Canvas canvas2) {
+
+                    Resources res2 = getResources();
+                    BitmapDrawable bd7 = (BitmapDrawable) res2.getDrawable(R.drawable.dung);
+
+                    Bitmap bit7 = bd7.getBitmap();
+
+                    int randValueWidth = random.nextInt(deviceWidth);
+                    int randValueHeight = random.nextInt(deviceHeight);
+                    Log.i(TAG, "randValueWidth :" + randValueWidth + ", randValueHeight :" + randValueHeight);
+
+                    //캐릭터 왼쪽 x좌표
+                    int dung_petLeftX = randValueWidth - deviceWidth / 16;
+                    //캐릭터 오른쪽 x좌표
+                    int dung_petRightX = randValueWidth + deviceWidth / 16;
+                    //캐릭터 위쪽 y좌표
+                    int dung_petTopY = randValueHeight / 2 - deviceHeight / 20;
+                    //캐릭터 아래쪽 y좌표
+                    int dung_petBottomY = randValueHeight / 2 + deviceHeight / 20;
+
+
+                    canvas2.drawBitmap(bit7, null, new Rect(dung_petLeftX, dung_petTopY, dung_petRightX, dung_petBottomY), null);
+
+                }
+            };
+            vw3.setOnClickListener(new OnClickListener()
+            {
+                @Override
+                public void onClick(View v) {
+                    Log.i(TAG, "riRJDLKFLK");
+                   // RemoveDung();
+                }
+            });
+
+
+            frameLayout.addView(vw3);//ㅠㅠ... 리니어 레이아웃에선 addview를 하면 덮어쓰기가 되어버린다. 그래서 removeview를 하지않으면 추가된 애가 보이지 않음.... 따라서 프레임 레이아웃을 사용해야한다,
+        }
+            Log.i(TAG, "몇개" + linear.getChildCount());
+
+
+
+        setContentView(linear);
+
+
+     //////   //////////사용자 레벨에 따라 그림 바꾸기
         ImageView iv= (ImageView)findViewById(R.id.level);
         iv.setImageResource(R.drawable.lv2);
 
@@ -135,10 +215,16 @@ public class MainActivity extends AppCompatActivity {
                     t1.show();*/
 
                     //LinearLayout linear2 = (LinearLayout) View.inflate(MainActivity.this, R.layout.activity_main, null);
-                    linear.removeView(vw);
+
+
+
+                    frameLayout.removeAllViews();
+                    //frameLayout.removeView(vw);
+                    //frameLayout.removeView(vw3);
                     vw2 = new MyView2(MainActivity.this);
-                    linear.addView(vw2);
+                    frameLayout.addView(vw2);
                     setContentView(linear);
+
 
                     new CountDownTimer(5*1000,1000) {//1초간격으로 총 5초 진행
                         @Override
@@ -264,8 +350,8 @@ public class MainActivity extends AppCompatActivity {
                 sign = 1;
             }
             moveDistance = moveDistance + sign * 50;
-            Log.i(TAG, "x좌표" + petRightX);
-            Log.i(TAG, "repaint!");
+           /* Log.i(TAG, "x좌표" + petRightX);
+            Log.i(TAG, "repaint!");*/
 
             //android.os.SystemClock.sleep(600);
 
@@ -327,6 +413,41 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
+        }
+    }
+
+
+    //똥 이미지 출력
+    class MyView4 extends View {
+
+        Random random= new Random();
+
+        public MyView4(Context context2) {
+            super(context2);
+        }
+
+        public void onDraw(Canvas canvas2) {
+
+            Resources res2 = getResources();
+            BitmapDrawable bd7 = (BitmapDrawable) res2.getDrawable(R.drawable.dung);
+
+            Bitmap bit7 = bd7.getBitmap();
+
+            int randValueWidth= random.nextInt(deviceWidth);
+            int randValueHeight = random.nextInt(deviceHeight);
+            Log.i(TAG,"randValueWidth :"+randValueWidth+", randValueHeight :"+ randValueHeight);
+
+            //캐릭터 왼쪽 x좌표
+           int dung_petLeftX = randValueWidth - deviceWidth / 16;
+            //캐릭터 오른쪽 x좌표
+            int dung_petRightX = randValueWidth + deviceWidth / 16;
+            //캐릭터 위쪽 y좌표
+            int dung_petTopY =  randValueHeight /2 - deviceHeight / 20;
+            //캐릭터 아래쪽 y좌표
+            int dung_petBottomY = randValueHeight /2 + deviceHeight / 20;
+
+
+            canvas2.drawBitmap(bit7, null, new Rect(dung_petLeftX, dung_petTopY, dung_petRightX, dung_petBottomY), null);
         }
     }
 }

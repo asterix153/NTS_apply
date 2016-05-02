@@ -81,8 +81,8 @@ public class StateConfirm extends AsyncTask<String,Void,String> {
 
     @Override
     protected void onPostExecute(String result) {
-        alertDialog.setMessage(result);
-        alertDialog.show(); //php의 echo를 출력
+        //alertDialog.setMessage(result);
+        //alertDialog.show(); //php의 echo를 출력
     }
 
     @Override
