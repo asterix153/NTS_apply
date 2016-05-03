@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     int deviceHeight; //기기 세로길이
 
     int moveDistance = 0; //기본 위치 기준, 좌우로 이동한 값
+    int moveDistance2 =0; //빗자루 이동 거리
 
     //캐릭터가 위치한 xy좌표
     int petLeftX = 0;
@@ -67,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
 
     MyView vw; //캐릭터가 들어있는 뷰
     MyView2 vw2;
+    MyView4 vw4;
+    public static MyView3[] dungView = new MyView3[5];
 
 
     Handler mHandler;
@@ -90,14 +93,8 @@ public class MainActivity extends AppCompatActivity {
         //각 버튼에 리스너 등록
         findViewById(R.id.rice).setOnClickListener(btnClickListener);
         findViewById(R.id.play).setOnClickListener(btnClickListener);
-        findViewById(R.id.stroll).setOnClickListener(btnClickListener);
+        findViewById(R.id.clean).setOnClickListener(btnClickListener);
         findViewById(R.id.gift).setOnClickListener(btnClickListener);
-////////////랜덤으로 똥 생성해서 db에 투척
-/*
-        Random random= new Random();
-        int randValue = random.nextInt(30) + 1;//1부터 30까지의 경우의 수 중 선택
-        if(randValue)
-*/
 
 ////////////db에 있는 사용자 정보 가져오기
 
@@ -131,68 +128,25 @@ public class MainActivity extends AppCompatActivity {
         frameLayout = (FrameLayout)findViewById(R.id.dynamic_layout);
         vw = new MyView(this);
         frameLayout.addView(vw);
-        //setContentView(linear);
+
 
         for(int i=0 ; i< numOfDung; i++) {
 
+            dungView[i] = new MyView3(this);
+            frameLayout.addView(dungView[i]);//ㅠㅠ... 리니어 레이아웃에선 addview를 하면 덮어쓰기가 되어버린다. 그래서 removeview를 하지않으면 추가된 애가 보이지 않음.... 따라서 프레임 레이아웃을 사용해야한다,
 
-            View vw3 = new View(this) {
-                Random random = new Random();
-
-                /*public MyView3(Context context2) {
-                    super(context2);
-                }*/
-
-                public void onDraw(Canvas canvas2) {
-
-                    Resources res2 = getResources();
-                    BitmapDrawable bd7 = (BitmapDrawable) res2.getDrawable(R.drawable.dung);
-
-                    Bitmap bit7 = bd7.getBitmap();
-
-                    int randValueWidth = random.nextInt(deviceWidth);
-                    int randValueHeight = random.nextInt(deviceHeight);
-                    Log.i(TAG, "randValueWidth :" + randValueWidth + ", randValueHeight :" + randValueHeight);
-
-                    //캐릭터 왼쪽 x좌표
-                    int dung_petLeftX = randValueWidth - deviceWidth / 16;
-                    //캐릭터 오른쪽 x좌표
-                    int dung_petRightX = randValueWidth + deviceWidth / 16;
-                    //캐릭터 위쪽 y좌표
-                    int dung_petTopY = randValueHeight / 2 - deviceHeight / 20;
-                    //캐릭터 아래쪽 y좌표
-                    int dung_petBottomY = randValueHeight / 2 + deviceHeight / 20;
-
-
-                    canvas2.drawBitmap(bit7, null, new Rect(dung_petLeftX, dung_petTopY, dung_petRightX, dung_petBottomY), null);
-
-                }
-            };
-            vw3.setOnClickListener(new OnClickListener()
-            {
-                @Override
-                public void onClick(View v) {
-                    Log.i(TAG, "riRJDLKFLK");
-                   // RemoveDung();
-                }
-            });
-
-
-            frameLayout.addView(vw3);//ㅠㅠ... 리니어 레이아웃에선 addview를 하면 덮어쓰기가 되어버린다. 그래서 removeview를 하지않으면 추가된 애가 보이지 않음.... 따라서 프레임 레이아웃을 사용해야한다,
         }
-            Log.i(TAG, "몇개" + linear.getChildCount());
-
-
-
+        //frameLayout.removeView(v); //recreate()로 하면 똥들이 다시 랜덤값으로 옮기면서 똥하나가 사라지니, 뭔가 어색함. 클릭한 똥만 화면에서 사라지게 하면 된다.
         setContentView(linear);
 
 
-     //////   //////////사용자 레벨에 따라 그림 바꾸기
+        //////   //////////사용자 레벨에 따라 그림 바꾸기
         ImageView iv= (ImageView)findViewById(R.id.level);
         iv.setImageResource(R.drawable.lv2);
 
 
-        mHandler = new android.os.Handler() {;
+        ///캐릭터 움직임 표현
+        mHandler = new android.os.Handler() {
             public void handleMessage(android.os.Message msg){
                 mHandler.sendEmptyMessageDelayed(0,600);
                 vw.invalidate();
@@ -200,7 +154,6 @@ public class MainActivity extends AppCompatActivity {
         };
         mHandler.sendEmptyMessage(0);
 
-        //client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     Button.OnClickListener btnClickListener = new View.OnClickListener() {
@@ -243,11 +196,41 @@ public class MainActivity extends AppCompatActivity {
                     }.start();
 
                     break;
-                case R.id.play: // play with pet inside 임시로 예금기능 구현
+
+                case R.id.clean:
+
+                    frameLayout.removeView(vw);
+
+                    vw4 = new MyView4(MainActivity.this);
+                    frameLayout.addView(vw4);
+                    setContentView(linear);
+
+
+                    new CountDownTimer(5*1000,1000) {//1초간격으로 총 5초 진행
+                        @Override
+                        public void onTick(long millisUntilFinished) {
+                            vw4.invalidate();
+                        }
+
+                        @Override
+                        public void onFinish() {
+
+                            DungRemove dungRemove = new DungRemove(MainActivity.this);
+                            String type="Dung";
+                            String username="r";
+                            String password="r";
+                            dungRemove.execute(type, username, password);
+
+                            recreate();
+
+                        }
+                    }.start();
 
 
                     break;
-                case R.id.stroll: // play with pet outside    임시로 다른 액티비티 넘어가는 것
+
+                case R.id.play: // play with pet inside 임시로 예금기능 구현
+
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                     startActivityForResult(intent, ACT_EDIT);
                     break;
@@ -273,6 +256,7 @@ public class MainActivity extends AppCompatActivity {
                             .show();
 
                     break;
+
 
             }
 
@@ -339,10 +323,10 @@ public class MainActivity extends AppCompatActivity {
             //캐릭터 오른쪽 x좌표
             petRightX = deviceWidth / 2 + deviceWidth / 8 + moveDistance;
             //캐릭터 위쪽 y좌표
-            petTopY = deviceHeight / 2 - deviceHeight / 10;
+            petTopY = deviceHeight / 4 - deviceHeight / 10;
             //캐릭터 아래쪽 y좌표
-            petBottomY = deviceHeight / 2 + deviceHeight / 10;
-
+            petBottomY = deviceHeight / 4 + deviceHeight / 10;
+            Log.i(TAG, "petLeftX = " + petLeftX + ", petTopY = " + petTopY);
 
             if (petRightX > deviceWidth) {
                 sign = -1;
@@ -399,9 +383,9 @@ public class MainActivity extends AppCompatActivity {
             //캐릭터 오른쪽 x좌표
             petRightX = deviceWidth / 2 + deviceWidth / 8;
             //캐릭터 위쪽 y좌표
-            petTopY = deviceHeight / 2 - deviceHeight / 10;
+            petTopY = deviceHeight / 4 - deviceHeight / 10;
             //캐릭터 아래쪽 y좌표
-            petBottomY = deviceHeight / 2 + deviceHeight / 10;
+            petBottomY = deviceHeight / 4 + deviceHeight / 10;
 
 
             if(riceOrder==0) {
@@ -416,39 +400,94 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     //똥 이미지 출력
-    class MyView4 extends View {
+    class MyView3 extends View {
 
-        Random random= new Random();
-
-        public MyView4(Context context2) {
-            super(context2);
+        Random random = new Random();
+        //익명클래스는 생성자x
+        public MyView3(Context context) {
+            super(context);
         }
+        public void onDraw(Canvas canvas) {
 
-        public void onDraw(Canvas canvas2) {
-
-            Resources res2 = getResources();
-            BitmapDrawable bd7 = (BitmapDrawable) res2.getDrawable(R.drawable.dung);
+            Resources res = getResources();
+            BitmapDrawable bd7 = (BitmapDrawable) res.getDrawable(R.drawable.dung);
 
             Bitmap bit7 = bd7.getBitmap();
 
-            int randValueWidth= random.nextInt(deviceWidth);
+            int randValueWidth = random.nextInt(deviceWidth);
             int randValueHeight = random.nextInt(deviceHeight);
-            Log.i(TAG,"randValueWidth :"+randValueWidth+", randValueHeight :"+ randValueHeight);
+            Log.i(TAG, "randValueWidth :" + randValueWidth + ", randValueHeight :" + randValueHeight);
 
             //캐릭터 왼쪽 x좌표
-           int dung_petLeftX = randValueWidth - deviceWidth / 16;
+            int dung_petLeftX = randValueWidth - deviceWidth / 16;
             //캐릭터 오른쪽 x좌표
             int dung_petRightX = randValueWidth + deviceWidth / 16;
             //캐릭터 위쪽 y좌표
-            int dung_petTopY =  randValueHeight /2 - deviceHeight / 20;
+            int dung_petTopY = deviceHeight / 4 - deviceHeight / 20;
             //캐릭터 아래쪽 y좌표
-            int dung_petBottomY = randValueHeight /2 + deviceHeight / 20;
+            int dung_petBottomY = deviceHeight / 4 + deviceHeight / 20;
 
 
-            canvas2.drawBitmap(bit7, null, new Rect(dung_petLeftX, dung_petTopY, dung_petRightX, dung_petBottomY), null);
+            canvas.drawBitmap(bit7, null, new Rect(dung_petLeftX, dung_petTopY, dung_petRightX, dung_petBottomY), null);
+
         }
+    }
+
+
+    //청소하는 이미지지
+
+    class MyView4 extends View {
+
+        //익명클래스는 생성자x
+        public MyView4(Context context) {
+            super(context);
+        }
+        public void onDraw(Canvas canvas) {
+
+            Resources res = getResources();
+            BitmapDrawable bd8 = (BitmapDrawable) res.getDrawable(R.drawable.broom);
+            BitmapDrawable bd9 = (BitmapDrawable) res.getDrawable(R.drawable.broom2);
+
+            Bitmap bit8 = bd8.getBitmap();
+            Bitmap bit9 = bd9.getBitmap();
+
+            //캐릭터 왼쪽 x좌표
+            petLeftX = deviceWidth / 2 - deviceWidth / 8 + moveDistance2;
+            //캐릭터 오른쪽 x좌표
+            petRightX = deviceWidth / 2 + deviceWidth / 8 + moveDistance2;
+            //캐릭터 위쪽 y좌표
+            petTopY = deviceHeight / 4 - deviceHeight / 10;
+            //캐릭터 아래쪽 y좌표
+            petBottomY = deviceHeight / 4 + deviceHeight / 10;
+
+
+            if (petRightX > deviceWidth*3/4) {//가로길이 3/4지점까지만 오른쪽으로
+                sign = -1;
+            } else if (petLeftX < deviceWidth*1/4) {//가로길이 1/4지점까지만 왼쪽으로
+                sign = 1;
+            }
+            moveDistance2 = moveDistance2 + sign * 50;
+
+
+            if (sign == 1 && legOrder == 0) {
+                canvas.drawBitmap(bit8, null, new Rect(petLeftX, petTopY, petRightX, petBottomY), null);
+                legOrder += 1;
+            } else if (sign == 1 && legOrder == 1) {
+                canvas.drawBitmap(bit9, null, new Rect(petLeftX, petTopY, petRightX, petBottomY), null);
+                legOrder -= 1;
+            } else if (sign == -1 && legOrder == 0) {
+                canvas.drawBitmap(bit8, null, new Rect(petLeftX, petTopY, petRightX, petBottomY), null);
+                legOrder += 1;
+            } else if (sign == -1 && legOrder == 1) {
+                canvas.drawBitmap(bit9, null, new Rect(petLeftX, petTopY, petRightX, petBottomY), null);
+                legOrder -= 1;
+            }
+
+            //invalidate();//onDraw 재호출
+        }
+
+
     }
 }
 
